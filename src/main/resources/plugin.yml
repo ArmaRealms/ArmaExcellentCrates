@@ -5,6 +5,7 @@ author: NightExpress
 desciption: Lightweight, powerful, feature-rich and highly customizable crates plugin.
 depend: [ nightcore ]
 softdepend:
+  - Oraxen
   - PlaceholderAPI
   - ProtocolLib
   - packetevents

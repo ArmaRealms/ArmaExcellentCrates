@@ -98,20 +98,16 @@ public class PreviewMenu extends LinkedMenu<CratesPlugin, CrateSource> implement
                 .ignoreNameAndLore()
                 .setDisplayName(this.rewardName)
                 .setLore(this.rewardLore)
-                .replacement(replacer -> {
-                        replacer
-                            .replace(GENERIC_LIMITS, limits)
-                            .replace(NO_PERMISSION, restrictions)
-                            .replace("%win_limit_amount%", limits)
-                            .replace("%win_limit_cooldown%", Collections.emptyList())
-                            .replace("%win_limit_drained%", Collections.emptyList())
-                            .replace("%win_limit_no_permission%", restrictions)
-                            .replace(reward.replacePlaceholders())
-                            .replace(crate.replacePlaceholders());
-                        if (this.applyPlaceholderAPI) {
-                            replacer.replacePlaceholderAPI(player);
-                        }
-                    }
+                .replacement(replacer -> replacer
+                    .replace(GENERIC_LIMITS, limits)
+                    .replace(NO_PERMISSION, restrictions)
+                    .replace("%win_limit_amount%", limits)
+                    .replace("%win_limit_cooldown%", Collections.emptyList())
+                    .replace("%win_limit_drained%", Collections.emptyList())
+                    .replace("%win_limit_no_permission%", restrictions)
+                    .replace(reward.replacePlaceholders())
+                    .replace(crate.replacePlaceholders())
+                    .replace(forRewardPlayer(player))
                 );
         });
 
@@ -152,7 +148,7 @@ public class PreviewMenu extends LinkedMenu<CratesPlugin, CrateSource> implement
 
         loader.addHandler(new ItemHandler("open", (viewer, event) -> {
             CrateSource source = this.getLink(viewer);
-            if (!source.hasItem() || !source.hasBlock()) return;
+            if (!source.hasItem() && !source.hasBlock()) return;
 
             Player player = viewer.getPlayer();
 

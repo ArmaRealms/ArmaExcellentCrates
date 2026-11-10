@@ -68,7 +68,11 @@ public class SelectableMenu extends LinkedMenu<CratesPlugin, SelectableOpening> 
                     .setDisplayName(this.rewardName)
                     .setLore(this.rewardLore);
 
-                return item.replacement(replacer -> replacer.replace(reward.replacePlaceholders()));
+                return item.replacement(replacer -> replacer
+                    .replace(reward.replacePlaceholders())
+                    .replace(reward.getCrate().replacePlaceholders())
+                    .replace(forRewardPlayer(player))
+                    .replacePlaceholderAPI(player));
             })
             .setItemClick(reward -> (viewer1, event) -> {
                 if (opening.isSelectedReward(reward)) {

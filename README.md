@@ -48,13 +48,20 @@
 ## System Requirements
 - Server Software: [**Spigot**](https://www.spigotmc.org/link-forums/88/) or [**Paper**](https://papermc.io/downloads/paper)
 - Server Version: <span style="color:red">**1.21.8**</span> or above
-- Java Version: [**21**](https://adoptium.net/temurin/releases) or above
+- Java Version: [**25**](https://adoptium.net/temurin/releases) or above for the server and Maven build.
 - Dependencies:
-    - [**nightcore**](https://nightexpressdev.com/nightcore/) - Plugin engine.
+    - [**nightcore 2.16.6**](https://modrinth.com/plugin/nightcore/version/2.16.6) - Plugin engine. This fork uses the item adapter API from 2.16.6.
 - Optional Plugins:
-    - [**PacketEvents**](https://spigotmc.org/resources/80279/) or [**ProtocolLib**](https://ci.dmulloy2.net/job/ProtocolLib/) - Crate holograms.
+    - [**PacketEvents**](https://github.com/retrooper/packetevents/releases) or [**ProtocolLib**](https://github.com/dmulloy2/ProtocolLib/releases) - Crate holograms. For 26.2, use PacketEvents 2.13.0 or later, or a compatible ProtocolLib development build.
 - Folia Supported: <span style="color:red">**No**</span>
 - Forge Supported: <span style="color:red">**No**</span>
+
+### Oraxen rewards
+
+- An Oraxen reference stores the item ID and amount. The reward uses the current Oraxen item definition. In the editor, choose NBT storage to preserve changes made to the particular stack being added.
+- Set `Placeholder_Apply: true` on each item reward whose name or lore needs player, crate, reward or PlaceholderAPI values. Both `%player_display_name%` and `%player_displayname%` resolve to the player's display name.
+- A reward with `Custom_Preview: true` can keep a separate `Description` list for `%reward_description%` in menu templates. The delivered lore comes from the reward item itself.
+- Oraxen's item updater can restore the configured `itemname` after delivery. For items whose personalized name must persist, set `no_auto_update: true` on that Oraxen item definition. This opts the item out of future template updates.
 
 ## Links
 - [SpigotMC](https://spigotmc.org/resources/48732/)

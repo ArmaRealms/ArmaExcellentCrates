@@ -1,5 +1,7 @@
 package su.nightexpress.excellentcrates;
 
+import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 import su.nightexpress.excellentcrates.api.crate.Reward;
 import su.nightexpress.excellentcrates.config.Lang;
 import su.nightexpress.excellentcrates.crate.cost.Cost;
@@ -12,6 +14,7 @@ import su.nightexpress.nightcore.util.NumberUtil;
 import su.nightexpress.nightcore.util.placeholder.PlaceholderList;
 import su.nightexpress.nightcore.util.profile.CachedProfile;
 
+import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
 public class Placeholders extends su.nightexpress.nightcore.util.Placeholders {
@@ -109,4 +112,10 @@ public class Placeholders extends su.nightexpress.nightcore.util.Placeholders {
         .add(COST_ID, Cost::getId)
         .add(COST_NAME, Cost::getName)
     );
+
+    @NotNull
+    public static UnaryOperator<String> forRewardPlayer(@NotNull Player player) {
+        UnaryOperator<String> replacer = forPlayer(player);
+        return text -> replacer.apply(text.replace("%player_displayname%", PLAYER_DISPLAY_NAME));
+    }
 }

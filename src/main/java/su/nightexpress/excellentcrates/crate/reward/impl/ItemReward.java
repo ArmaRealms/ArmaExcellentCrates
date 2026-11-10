@@ -3,7 +3,9 @@ package su.nightexpress.excellentcrates.crate.reward.impl;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import su.nightexpress.excellentcrates.CratesPlugin;
+import su.nightexpress.excellentcrates.Placeholders;
 import su.nightexpress.excellentcrates.api.crate.RewardType;
 import su.nightexpress.excellentcrates.config.Lang;
 import su.nightexpress.excellentcrates.crate.impl.Crate;
@@ -28,6 +30,7 @@ public class ItemReward extends AbstractReward {
 
     private boolean           customPreview;
     private boolean           allowItemPlaceholders;
+    private @Nullable List<String> previewDescription;
     private List<AdaptedItem> items;
 
     public ItemReward(@NotNull CratesPlugin plugin, @NotNull Crate crate, @NotNull String id, @NotNull Rarity rarity) {
@@ -51,6 +54,7 @@ public class ItemReward extends AbstractReward {
 
         this.setCustomPreview(ConfigValue.create(path + ".Custom_Preview", false).read(config));
         this.setAllowItemPlaceholders(config.getBoolean(path + ".Placeholder_Apply"));
+        this.previewDescription = config.isList(path + ".Description") ? List.copyOf(config.getStringList(path + ".Description")) : null;
 
         config.getSection(path + ".ItemsData").forEach(sId -> {
             AdaptedItem item = ItemHelper.read(config, path + ".ItemsData." + sId).orElse(null);
@@ -67,6 +71,7 @@ public class ItemReward extends AbstractReward {
     protected void writeAdditional(@NotNull FileConfig config, @NotNull String path) {
         config.set(path + ".Custom_Preview", this.customPreview);
         config.set(path + ".Placeholder_Apply", this.allowItemPlaceholders);
+        config.set(path + ".Description", this.previewDescription);
         config.remove(path + ".ItemsData");
 
         int count = 0;
@@ -109,22 +114,31 @@ public class ItemReward extends AbstractReward {
 
     @Override
     public void giveContent(@NotNull Player player) {
-        Replacer replacer = this.createContentReplacer(player);
+        Replacer replacer = this.createContentReplacer(player)
+            .replace(Placeholders.forRewardPlayer(player))
+            .replacePlaceholderAPI(player);
 
         this.getItems().forEach(provider -> {
             ItemStack itemStack = provider.getItemStack();
             if (itemStack == null) return;
 
             if (this.allowItemPlaceholders) {
+                itemStack = itemStack.clone();
                 ItemUtil.editMeta(itemStack, meta -> {
-                    if (meta.hasItemName()) {
-                        meta.setItemName(replacer.apply(String.valueOf(ItemUtil.getItemNameSerialized(meta))));
+                    String itemName = ItemUtil.getItemNameSerialized(meta);
+                    if (itemName != null) {
+                        String resolved = replacer.apply(itemName);
+                        if (!resolved.equals(itemName)) ItemUtil.setItemName(meta, resolved);
                     }
-                    if (meta.hasDisplayName()) {
-                        meta.setDisplayName(replacer.apply(String.valueOf(ItemUtil.getCustomNameSerialized(meta))));
+                    String customName = ItemUtil.getCustomNameSerialized(meta);
+                    if (customName != null) {
+                        String resolved = replacer.apply(customName);
+                        if (!resolved.equals(customName)) ItemUtil.setCustomName(meta, resolved);
                     }
                     if (meta.hasLore()) {
-                        meta.setLore(replacer.apply(ItemUtil.getLoreSerialized(meta)));
+                        List<String> lore = ItemUtil.getLoreSerialized(meta);
+                        List<String> resolved = replacer.apply(lore);
+                        if (!resolved.equals(lore)) ItemUtil.setLore(meta, resolved);
                     }
                 });
             }
@@ -157,6 +171,8 @@ public class ItemReward extends AbstractReward {
     @Override
     @NotNull
     public List<String> getDescription() {
+        if (this.customPreview && this.previewDescription != null) return this.previewDescription;
+
         return ItemUtil.getLoreSerialized(this.getPreviewItem());
     }
 
